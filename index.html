@@ -47,9 +47,23 @@
   .sparkle{position:absolute; width:6px;height:6px; border-radius:50%; background:rgba(255,122,162,0.2); box-shadow:0 0 10px rgba(255,122,162,0.08)}
 
   @media (max-width:420px){ .card{padding:20px;border-radius:16px} }
+  /* surprise animation */
+  @keyframes surpriseBurst {
+    0% { transform: scale(0.2) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1.4) rotate(20deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 0; }
+  }
+  .surprise{
+    position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+    font-size:80px; pointer-events:none; opacity:0; animation:surpriseBurst 1.2s ease-out;
+  }
 </style>
 </head>
 <body>
+<audio id="bgMusic" loop autoplay style="display:none;">
+  <!-- FEATURE 5: Romantic lofi track -->
+  <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/no_curator/Monplaisir/Magnetic_Love/Monplaisir_-_Magnetic_Love.mp3" type="audio/mpeg">
+</audio>
 
 <div class="bg-hearts" aria-hidden="true"></div>
 
@@ -65,9 +79,14 @@
   <div class="extra" id="extra">
     <div class="note">
       <p>Every moment with you feels like a soft melody — sweet, warm and endless. You make ordinary days feel extraordinary. I hope this tiny page brings a smile to your face just like you bring to mine.</p>
-      <div class="signature">— with all my love</div>
-    </div>
+      <div class="signature">— with all my love  <div class="proposal" id="proposal" style="margin-top:20px; display:none;">
+    <h2 style="color:var(--accent); margin-bottom:10px;">Will you be mine? 💍💕</h2>
+    <button class="nextBtn" id="yesBtn" style="margin-right:10px;">Yes 💖</button>
+    <button class="nextBtn" id="noBtn" style="background:#ffb3c9;">No 😔</button>
   </div>
+
+</div>
+</div>
 </div>
 
 <script>
@@ -92,7 +111,8 @@
   }
   // start a bunch and keep adding
   for(let i=0;i<16;i++) setTimeout(createHeart, i*180);
-  setInterval(createHeart, 300);
+  // reduce number of background hearts
+  setInterval(createHeart, 900);
 
   // subtle sparkles behind
   for(let i=0;i<12;i++){
@@ -110,6 +130,95 @@
     if(opened) return;
     opened = true;
     extra.style.display = 'block';
+    nextBtn.style.display = 'none';
+    document.getElementById('proposal').style.display = 'block';
+    // burst of hearts
+    for(let i=0;i<24;i++){ setTimeout(createHeart, i*60); }
+  });
+
+  // Proposal buttons
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+
+  yesBtn.addEventListener('click', ()=>{
+    alert('You said YES! 💍❤️ You just made my world magical.');
+
+    // --- FEATURE 1: HEART FIREWORKS ---
+    for(let i=0;i<20;i++){
+      setTimeout(()=>{
+        const fw = document.createElement('div');
+        fw.innerText = '💖';
+        fw.style.position='fixed';
+        fw.style.left = (50 + (Math.random()*40 - 20)) + 'vw';
+        fw.style.top = (50 + (Math.random()*40 - 20)) + 'vh';
+        fw.style.fontSize = (40 + Math.random()*40) + 'px';
+        fw.style.opacity = '1';
+        fw.style.transition = 'all 1s ease-out';
+        document.body.appendChild(fw);
+        setTimeout(()=>{
+          fw.style.transform='translateY(-60px) scale(0.1)';
+          fw.style.opacity='0';
+        },50);
+        setTimeout(()=> fw.remove(),1100);
+      }, i*80);
+    }
+
+    // --- FEATURE 3: PHOTO REVEAL ---
+    const imgWrap = document.createElement('div');
+    imgWrap.style.position='fixed';
+    imgWrap.style.left='50%';
+    imgWrap.style.top='50%';
+    imgWrap.style.transform='translate(-50%, -50%)';
+    imgWrap.style.zIndex='9999';
+    imgWrap.style.animation='fadePhoto 2s ease forwards';
+
+    const img = document.createElement('img');
+    img.src='https://i.imgur.com/0ZfP7.png'; /* replace with your real photo */
+    img.style.width='180px';
+    img.style.height='180px';
+    img.style.borderRadius='50%';
+    img.style.border='4px solid #ff7aa2';
+    img.style.boxShadow='0 0 30px rgba(255,122,162,0.6)';
+
+    imgWrap.appendChild(img);
+    document.body.appendChild(imgWrap);
+    setTimeout(()=> imgWrap.remove(), 3500);
+
+    // --- EXTRA HEART BURST ---
+    for(let i=0;i<40;i++){ setTimeout(createHeart, i*40); }
+  });
+
+  // NO button becomes unpressable (runs away)
+  noBtn.addEventListener('mouseover', ()=>{
+    noBtn.style.position='relative';
+    noBtn.style.left = (Math.random()*80 - 40) + 'px';
+    noBtn.style.top = (Math.random()*60 - 30) + 'px';
+  });
+
+  // capture selection but no click action
+  noBtn.addEventListener('click', ()=>{
+    alert('Nice try 😆 but you can’t press No!');
+  });
+
+  // YES button action with surprise animation
+  yesBtn.addEventListener('click', ()=>{
+    alert('You said YES! 💍❤️ You just made my world magical.');
+    const s = document.createElement('div');
+    s.className = 'surprise';
+    s.innerText = '💖';
+    document.body.appendChild(s);
+    setTimeout(()=> s.remove(), 1500);
+    for(let i=0;i<40;i++){ setTimeout(createHeart, i*40); }
+  });('click', ()=>{
+    alert('Oh... that hurts 😔 but I still care about you.');
+  });
+
+  // original nextBtn listener restored
+  // next button logic
+  nextBtn.addEventListener('click', ()=>{
+    if(opened) return;
+    opened = true;
+    extra.style.display = 'block';
     nextBtn.innerText = 'Hope you liked it ❤️';
     // burst of hearts
     for(let i=0;i<24;i++){ setTimeout(createHeart, i*60); }
@@ -117,6 +226,55 @@
 
   // optional: let user press space/enter to open next
   document.addEventListener('keydown', e=>{ if((e.key==='Enter' || e.key===' ') && !opened){ nextBtn.click(); } });
+  // EXTRA FEATURE 1 — soft glow pulsing background
+  setInterval(()=>{
+    document.body.style.transition = 'background 1.8s ease';
+    document.body.style.background =
+      Math.random() > 0.5 ? 'linear-gradient(180deg,#ffdce9,#ffeef6)' : 'linear-gradient(180deg,#ffe6f1,#fff0f7)';
+  }, 2500);
+
+  // EXTRA FEATURE 2 — floating compliments
+  const compliments = [
+    'You are adorable 💗',
+    'You make my world brighter ✨',
+    'Your smile is magic 💞',
+    'You are special to me 💕',
+    'You’re my favorite person 💘'
+  ];
+  function floatText(){
+    const t = document.createElement('div');
+    t.style.position='fixed';
+    t.style.left = Math.random()*80 + 'vw';
+    t.style.top = '100vh';
+    t.style.fontSize = '20px';
+    t.style.color = 'var(--accent)';
+    t.style.opacity = '0';
+    t.style.transition = 'all 4s ease-out';
+    t.innerText = compliments[Math.floor(Math.random()*compliments.length)];
+    document.body.appendChild(t);
+    setTimeout(()=>{
+      t.style.top = Math.random()*20 + 'vh';
+      t.style.opacity = 1;
+    },100);
+    setTimeout(()=> t.remove(),5000);
+  }
+  setInterval(floatText, 5000);
+
+  // EXTRA FEATURE 3 — spark when hovering YES
+  yesBtn.addEventListener('mouseover', ()=>{
+    const star = document.createElement('div');
+    star.innerText = '✨';
+    star.style.position='fixed';
+    star.style.left = (yesBtn.getBoundingClientRect().left + 20) + 'px';
+    star.style.top = (yesBtn.getBoundingClientRect().top - 10) + 'px';
+    star.style.fontSize = '24px';
+    star.style.opacity = '0';
+    star.style.transition = 'all 1s ease-out';
+    document.body.appendChild(star);
+    setTimeout(()=>{ star.style.top = (yesBtn.getBoundingClientRect().top - 40) + 'px'; star.style.opacity = 1;},50);
+    setTimeout(()=> star.remove(),1200);
+  });
+
 </script>
 
 </body>
